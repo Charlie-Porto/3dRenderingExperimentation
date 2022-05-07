@@ -23,7 +23,7 @@
 #include "ecs/systems/ball_movement_system.cpp"
 
 /* other */
-#include "tools/other/simple_framerate_timer.cpp"
+#include <simple_framerate_timer.cpp>
 #include "ecs/BallManager.cpp"
 #include "ecs/LineManager.cpp"
 

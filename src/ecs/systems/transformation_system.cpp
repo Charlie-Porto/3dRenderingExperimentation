@@ -13,7 +13,8 @@ based on that entity's 3D location and size.
 #include "../System.cpp"
 #include "../../constants/static_variables.cpp"
 
-#include "../../../include/glm/vec3.hpp"
+// #include "../../../include/glm/vec3.hpp"
+#include <glm/vec3.hpp>
 #include "../../tools/math_objects/Plane.cpp"
 #include "../../tools/math_objects/LineParamEq.cpp"
 #include "../../tools/math_functions/vector_functions.cpp"
@@ -56,13 +57,6 @@ public:
     pov_magnitude = vfunc::calculateMagnitude(point_of_view);
     latitude = tan(((width_angle_of_view/2.0) * PI) / 180.0) * pov_magnitude;
     longitude = tan(((height_angle_of_view/2.0) * PI) / 180.0) * pov_magnitude; 
-    // print_labeled_item("latitude: ", latitude);
-    // print_labeled_item("longitude: ", longitude);
-  }
-
-  void CalculateEndPointsOfViewPane() {
-    // pick up here; brain is not in great shape on 5/3/2022 (poor sleep)
-
   }
 
   void CalculateViewPlane() {
@@ -70,14 +64,7 @@ public:
     view_plane.y = point_of_view.y;
     view_plane.z = point_of_view.z;
     view_plane.c = 0.0;
-
-    // print_item("calculating view plane");
-    // std::cout<< "x: " <<view_plane.x<<'\n';
-    // std::cout<< "y: " <<view_plane.y<<'\n';
-    // std::cout<< "z: " <<view_plane.z<<'\n';
-    // std::cout<< "c: " <<view_plane.c<<'\n';
   }
-
 
   void CalculateWire(glm::dvec3 ball_position) {
     wire = vfunc::getLineThrough3dVectors(point_of_view, ball_position);
@@ -174,7 +161,7 @@ public:
       UpdatePointOfViewPosition(-1);
     }
     if (buttons_pressed[2] == true) {
-      // print_item("JOYSTICK: UP");
+      // print_item("JOYSTICK: UP")    
     }
     if (buttons_pressed[3] == true) {
       // print_item("JOYSTICK: DOWN");
