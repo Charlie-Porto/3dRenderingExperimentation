@@ -7,18 +7,18 @@
 system class that determines an entity's 2D screen coordinates
 based on that entity's 3D location and size.
 -----------------------------------------------------------------*/
+
 #include <iostream>
 #include <cmath>
 
 #include "../System.cpp"
 #include "../../constants/static_variables.cpp"
 
-// #include "../../../include/glm/vec3.hpp"
 #include <glm/vec3.hpp>
+#include <virtual_keyboard.cpp>
 #include "../../tools/math_objects/Plane.cpp"
 #include "../../tools/math_objects/LineParamEq.cpp"
 #include "../../tools/math_functions/vector_functions.cpp"
-#include "../../tools/other/virtual_keyboard.cpp"
 
 #ifndef PI
 #define PI 3.14159265
@@ -27,8 +27,6 @@ using Scalar = double;
 using Angle = double;
 
 const double FOCUS_DISTANCE = 30.0; // distance at which actual length = screen pixels
-const double SPACE_CURVE_DISTANCE = 100.0;
-
 
 extern ControlPanel control;
 
@@ -85,7 +83,6 @@ public:
   int CalculateSignOf2dXGiven3dIntersectionPoint(glm::dvec3 intersection_point) {
     return 0;
   }
-
 
 
   void Calculate2dObjectCoordinates() {
@@ -150,20 +147,20 @@ public:
   }
 
   void PollVirtualKeyboard() {
-    std::vector<bool> buttons_pressed = joystick.check_buttons();  
+    Joystick_ buttons_pressed = joystick.check_buttons();  
     int incremental_angle_sign = 1;
-    if (buttons_pressed[0] == true) { 
+    if (buttons_pressed.R_pressed == true) { 
       print_item("JOYSTICK: RIGHT");
       UpdatePointOfViewPosition(1);
     }
-    if (buttons_pressed[1] == true) {
+    if (buttons_pressed.L_pressed == true) {
       print_item("JOYSTICK: LEFT");
       UpdatePointOfViewPosition(-1);
     }
-    if (buttons_pressed[2] == true) {
+    if (buttons_pressed.Up_pressed == true) {
       // print_item("JOYSTICK: UP")    
     }
-    if (buttons_pressed[3] == true) {
+    if (buttons_pressed.Down_pressed == true) {
       // print_item("JOYSTICK: DOWN");
     }
   }
