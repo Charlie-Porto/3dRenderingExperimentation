@@ -7,8 +7,10 @@
 struct for a line in terms of a parametric equation
 -----------------------------------------------------------------*/
 
+namespace pce {
+namespace math_objs {
 
-struct LineParamEq {
+struct LineParametricEquation {
   double x_coefficient;
   double y_coefficient;
   double z_coefficient;
@@ -18,7 +20,8 @@ struct LineParamEq {
   double z_constant;
 };
 
-
+}
+}
 
 
 

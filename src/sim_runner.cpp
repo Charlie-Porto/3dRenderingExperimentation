@@ -18,7 +18,7 @@
 #include "ecs/components/rigid_body_component.cpp"
 
 /* systems */
-#include "ecs/systems/transformation_system.cpp"
+#include "ecs/systems/transform_system.cpp"
 #include "ecs/systems/draw_system.cpp"
 #include "ecs/systems/ball_movement_system.cpp"
 
@@ -62,13 +62,13 @@ int main(int argc, const char * argv[]) {
     control.RegisterComponent<Transform>();
 
 
-    /* Register Systems */
-    auto transformation_system = control.RegisterSystem<TransformationSystem>();
-    Signature transformation_sig;
-    transformation_sig.set(control.GetComponentType<RigidBody>());
-    transformation_sig.set(control.GetComponentType<Transform>());
-    control.SetSystemSignature<TransformationSystem>(transformation_sig);
-    transformation_system->Init();
+    // /* Register Systems */
+    auto transform_system = control.RegisterSystem<pce::TransformSystem>();
+    Signature transform_sig;
+    transform_sig.set(control.GetComponentType<RigidBody>());
+    transform_sig.set(control.GetComponentType<Transform>());
+    control.SetSystemSignature<pce::TransformSystem>(transform_sig);
+    transform_system->Init();
 
     auto draw_system = control.RegisterSystem<DrawSystem>();
     Signature draw_sig;
@@ -83,13 +83,13 @@ int main(int argc, const char * argv[]) {
 
     /* Create Entities */
     auto ball_manager = BallManager();
-    auto line_manager = LineManager();
+    // auto line_manager = LineManager();
 
-    for (int i = 0; i < 300; ++i) {
-        ball_manager.MakeBall();
-    }
+    // for (int i = 0; i < 1; ++i) {
+        // ball_manager.MakeBall();
+    // }
 
-    line_manager.Init();
+    // line_manager.Init();
     
 
 
@@ -117,13 +117,13 @@ int main(int argc, const char * argv[]) {
         // print_item("-------------------------------------------");
         /*~~~~~~~~~------------- Do Stuff and Update ----------------*/
         double ticks = (SDL_GetTicks()/1000.0);
-        transformation_system->UpdateEntities();
-        ball_movement_system->UpdateEntities(ticks);
+        transform_system->UpdateCamera();
+        // ball_movement_system->UpdateEntities(ticks);
 
 
         /*~~~~~~~~~-------------- Draw and Render --------------------*/
-        line_manager.DrawLines();
-        draw_system->UpdateEntities();
+        // line_manager.DrawLines();
+        // draw_system->UpdateEntities();
         simulation->render();
 
 

@@ -15,7 +15,11 @@ based on that entity's 3D location and size.
 #include "../../constants/static_variables.cpp"
 
 #include <glm/vec3.hpp>
+#include <glm/geometric.hpp>
+
+#include <quaternion_funktions.cpp>
 #include <virtual_keyboard.cpp>
+#include <ezprint.cpp>
 #include "../../tools/math_objects/Plane.cpp"
 #include "../../tools/math_objects/LineParamEq.cpp"
 #include "../../tools/math_functions/vector_functions.cpp"
@@ -27,7 +31,7 @@ using Scalar = double;
 using Angle = double;
 
 const double FOCUS_DISTANCE = 30.0; // distance at which actual length = screen pixels
-
+const glm::dvec3 Y_AXIS_UNIT_VECTOR = glm::dvec3(0.0, 1.0, 0.0);
 extern ControlPanel control;
 
 class TransformationSystem : public ISystem { 
@@ -45,8 +49,13 @@ public:
 
   void Init() {
     joystick = VirtualKeyboard();
-    view_angle = 0.0;
+    xz_view_angle_ = 0.0;
+    y_view_angle_ = 0.0;
     pov_magnitude = vfunc::calculateMagnitude(point_of_view);
+    pov_vertical_rotation_versor_ = glm::dquat(1, 0, 0, 0);
+    conj_pov_vertical_rotation_versor_ = glm::conjugate(pov_vertical_rotation_versor_);
+    xz_circle_radius_ = cos(y_view_angle_ / 180.0 * PI) * pov_magnitude;
+    print_labeled_item("circle radius: ", xz_circle_radius_);
     CalculateLatitudeAndLongitude();
     CalculateViewPlane();
   }
@@ -80,35 +89,63 @@ public:
     }
   }
 
-  int CalculateSignOf2dXGiven3dIntersectionPoint(glm::dvec3 intersection_point) {
-    return 0;
-  }
 
-
+  // TODO: update this function
   void Calculate2dObjectCoordinates() {
-    const int point_x_sign = CalculateSignOfDouble(point_wire_intersects_viewplane.x);
-    const int point_z_sign = CalculateSignOfDouble(point_wire_intersects_viewplane.z);
-    const int point_y_sign = CalculateSignOfDouble(point_wire_intersects_viewplane.y);
+    const glm::dvec3 normed_point = CalculateNormalizedIntersectionPoint(point_wire_intersects_viewplane);
+
+    // const int point_x_sign = CalculateSignOfDouble(point_wire_intersects_viewplane.x);
+    // const int point_z_sign = CalculateSignOfDouble(point_wire_intersects_viewplane.z);
+    // const int point_y_sign = CalculateSignOfDouble(point_wire_intersects_viewplane.y);
+
+    const int point_x_sign = CalculateSignOfDouble(normed_point.x);
+    ezp::print_labeled_item("point_x_sign", point_x_sign);
+    const int point_z_sign = CalculateSignOfDouble(normed_point.z);
+    const int point_y_sign = CalculateSignOfDouble(normed_point.y);
+
     const int POV_z_sign = CalculateSignOfDouble(point_of_view.z);
+    ezp::print_labeled_item("pov_z_sign", POV_z_sign);
+    const int POV_x_sign = CalculateSignOfDouble(point_of_view.x);
 
     const int screen_x_sign = point_x_sign * POV_z_sign;
+    const int screen_z_sign = point_z_sign * POV_x_sign;
     const int screen_y_sign = point_y_sign;
 
-    // const double render_x = sqrt(pow(point_wire_intersects_viewplane.vect[0], 2.0) + 
-                                //  pow(point_wire_intersects_viewplane.vect[2], 2.0));
+    // const double render_x = sqrt(pow(normed_point.x, 2.0) + 
+                                //  pow(normed_point.z, 2.0)) *
+                                //  double(screen_x_sign);
                                          
     const double render_x = sqrt(pow(point_wire_intersects_viewplane.x, 2.0) + 
                                  pow(point_wire_intersects_viewplane.z, 2.0)) * 
-                                 double(screen_x_sign);
+                                 double(screen_x_sign) / 
+                                 cos(y_view_angle_);
 
-    // const double render_y = sqrt(pow(point_wire_intersects_viewplane.vect[1], 2.0) + 
-                                //  pow(point_wire_intersects_viewplane.vect[2], 2.0)) * 
+    // const double render_y = sqrt(pow(point_wire_intersects_viewplane.y, 2.0) + 
+                                //  pow(render_x, 2.0)) * 
                                 //  double(screen_y_sign);
 
     const double render_y = point_wire_intersects_viewplane.y;
 
     ball_render_x = render_x; 
     ball_render_y = render_y; 
+  }
+
+  glm::dvec3 CalculateNormalizedIntersectionPoint(glm::dvec3 location) {
+    glm::dquat location_quat;
+    location_quat.w = 0.0;
+    location_quat.x = location.x;
+    location_quat.y = location.y;
+    location_quat.z = location.z;
+    // ezp::print_item("========== not-yet-normalized: ===========");
+    // ezp::print_dquat(location_quat);
+    
+
+    glm::dquat normed_location_quat = conj_pov_vertical_rotation_versor_ * location_quat * pov_vertical_rotation_versor_;
+    glm::dvec3 normed_location_dvec3 = glm::dvec3(normed_location_quat.x, normed_location_quat.y, normed_location_quat.z);
+    // ezp::print_item("========== intersection normalized: ===========");
+    // ezp::print_dquat(normed_location_quat);
+    // ezp::print_item("-------------");
+    return normed_location_dvec3;
   }
 
 
@@ -134,36 +171,84 @@ public:
     return false;
   }
     
-  void UpdatePointOfViewPosition(int incremental_angle_sign) {
-    view_angle += global_const::hop_angle * double(incremental_angle_sign);
-    const std::vector<double> new_z_and_x = vfunc::movePointAroundCircleByAngle(
-                                                view_angle,
+  void UpdateXZPointOfViewPosition(int incremental_angle_sign) {
+    print_item("MOVING POSITION");
+    xz_view_angle_ += global_const::hop_angle * double(incremental_angle_sign);
+    const std::vector<double> new_z_and_x = vfunc::movePointAroundXZCircleByAngle(
+                                                xz_view_angle_,
                                                 pov_magnitude);
 
     const double current_y = point_of_view.y;
     point_of_view = glm::dvec3(new_z_and_x[1], current_y, new_z_and_x[0]);
 
+    // print_labeled_item("pov x:", point_of_view.x);
+    // print_labeled_item("pov y:", point_of_view.y);
+    // print_labeled_item("pov z:", point_of_view.z);
+
     CalculateViewPlane();
   }
+
+  void UpdateYPointOfViewPosition(int incremental_angle_sign) {
+    y_view_angle_ += global_const::hop_angle * double(incremental_angle_sign);
+    const double new_y_coordinate = vfunc::movePointAroundYCircleByAngle(y_view_angle_,
+                                                                         pov_magnitude);
+
+    print_item("MOVING POSITION");
+    print_labeled_item("y_view_angle: ", y_view_angle_);
+    // MUST: update xz_circle_radius based on new y_view_angle
+    xz_circle_radius_ = cos(y_view_angle_ / 180.0 * PI) * pov_magnitude;
+    print_labeled_item("xz_circle_radius: ", xz_circle_radius_);
+    // THEN MUST: update x and y points based on current position
+    // NOTE: xz angle did not change; only xz radius.
+    const std::vector<double> new_z_and_x = vfunc::movePointAroundXZCircleByAngle(
+                                                xz_view_angle_,
+                                                xz_circle_radius_);
+    point_of_view = glm::dvec3(new_z_and_x[1], new_y_coordinate, new_z_and_x[0]);
+
+    // print_labeled_item("pov x:", point_of_view.x);
+    // print_labeled_item("pov y:", point_of_view.y);
+    // print_labeled_item("pov z:", point_of_view.z);
+
+    CalculateVerticalRotationQuaternion();
+    CalculateViewPlane();
+  }
+
 
   void PollVirtualKeyboard() {
     Joystick_ buttons_pressed = joystick.check_buttons();  
     int incremental_angle_sign = 1;
     if (buttons_pressed.R_pressed == true) { 
-      print_item("JOYSTICK: RIGHT");
-      UpdatePointOfViewPosition(1);
+      // print_item("JOYSTICK: RIGHT");
+      UpdateXZPointOfViewPosition(1);
     }
     if (buttons_pressed.L_pressed == true) {
-      print_item("JOYSTICK: LEFT");
-      UpdatePointOfViewPosition(-1);
+      // print_item("JOYSTICK: LEFT");
+      UpdateXZPointOfViewPosition(-1);
     }
     if (buttons_pressed.Up_pressed == true) {
-      // print_item("JOYSTICK: UP")    
+      // print_item("JOYSTICK: UP");
+      UpdateYPointOfViewPosition(1);
     }
     if (buttons_pressed.Down_pressed == true) {
       // print_item("JOYSTICK: DOWN");
+      UpdateYPointOfViewPosition(-1);
     }
   }
+
+  void CalculateVerticalRotationQuaternion() {
+    ezp::print_item("CALCULATING NEW ROTATION QUATERNION");
+    glm::dvec3 y_axis = Y_AXIS_UNIT_VECTOR;
+    glm::dvec3 rotation_axis = glm::cross(y_axis, point_of_view);
+    rotation_axis = glm::normalize(rotation_axis);
+    ezp::print_item("rotation axis: ");
+    ezp::print_dvec3(rotation_axis);
+    pov_vertical_rotation_versor_ = qfunc::convertAngleAxisToQuaternion(-y_view_angle_, rotation_axis);
+    pov_vertical_rotation_versor_ = qfunc::zeroOutQuaternionRealComponent(pov_vertical_rotation_versor_);
+    conj_pov_vertical_rotation_versor_ = glm::conjugate(pov_vertical_rotation_versor_);
+    ezp::print_item("vertical rotation versor: ");
+    ezp::print_dquat(pov_vertical_rotation_versor_);
+  }
+
 
 
   void UpdateEntities() {
@@ -194,8 +279,12 @@ public:
 private:
   glm::dvec3 point_of_view;
   double pov_magnitude; // distance from origin
+  glm::dquat pov_vertical_rotation_versor_;
+  glm::dquat conj_pov_vertical_rotation_versor_;
+  double xz_circle_radius_;
   glm::dvec3 view_direction; // unused currently; always pointing directly at origin
-  Angle view_angle;
+  Angle xz_view_angle_;
+  Angle y_view_angle_;
   Plane view_plane;
 
   LineParamEq wire;

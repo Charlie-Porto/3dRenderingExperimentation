@@ -33,18 +33,18 @@ public:
   }
 
   void MakeXAxisLine() {
-    glm::dvec3 x_axis_point_a = glm::dvec3(-100.0, 0.0, 0.0);
-    glm::dvec3 x_axis_point_b = glm::dvec3(100.0, 0.0, 0.0);
+    glm::dvec3 x_axis_point_a = glm::dvec3(-30.0, 0.0, 0.0);
+    glm::dvec3 x_axis_point_b = glm::dvec3(30.0, 0.0, 0.0);
     MakeLine(x_axis_point_a, x_axis_point_b);
   }
   void MakeYAxisLine() {
-    glm::dvec3 y_axis_point_a = glm::dvec3(0.0, -300.0, 0.0);
-    glm::dvec3 y_axis_point_b = glm::dvec3(0.0, 300.0, 0.0);
+    glm::dvec3 y_axis_point_a = glm::dvec3(0.0, -30.0, 0.0);
+    glm::dvec3 y_axis_point_b = glm::dvec3(0.0, 30.0, 0.0);
     MakeLine(y_axis_point_a, y_axis_point_b);
   }
   void MakeZAxisLine() {
-    glm::dvec3 z_axis_point_a = glm::dvec3(0.0, 0.0, -100.0);
-    glm::dvec3 z_axis_point_b = glm::dvec3(0.0, 0.0, 100.0);
+    glm::dvec3 z_axis_point_a = glm::dvec3(0.0, 0.0, -30.0);
+    glm::dvec3 z_axis_point_b = glm::dvec3(0.0, 0.0, 30.0);
     MakeLine(z_axis_point_a, z_axis_point_b);
   }
 

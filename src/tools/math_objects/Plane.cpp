@@ -8,6 +8,8 @@ struct for a basic plane. nothing special bruh
 -----------------------------------------------------------------*/
 
 
+namespace pce {
+namespace math_objs {
 
 struct Plane {
   double x;
@@ -17,5 +19,7 @@ struct Plane {
 };
 
 
+}
+}
 
 #endif /* Plane_cpp */
