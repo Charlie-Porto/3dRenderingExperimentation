@@ -42,14 +42,15 @@ public:
     camera_.pov_scalar = start_pos_scalar;
     camera_.y_angle = start_y_angle;
     camera_.xz_angle = start_xz_angle;
+    camera_.xz_circle_radius = start_pos_scalar;
   }
 
 
   void UpdateCamera() {
     // update the camera. to relocate this responsibility eventually; should not be in this class
-    // - camera position (angles): poll keyboard
-    pce::transform::updateCameraPosition(camera_, keyboard_);
 
+    // this function below is working nicely
+    pce::transform::updateCameraPosition(camera_, keyboard_);
   }
 
   void UpdateEntities() {

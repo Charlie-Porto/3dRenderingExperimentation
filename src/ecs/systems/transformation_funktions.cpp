@@ -21,7 +21,9 @@ free functions to assist the TransformSystem class
 namespace pce {
 namespace transform {
 
-glm::dvec3 calculatePovCoordinates(const glm::dvec3& pos_unitvec3, const double& pos_scalar) {
+const double PI = 3.14159265;
+
+glm::dvec3 calculateCameraCoordinates(const glm::dvec3& pos_unitvec3, const double& pos_scalar) {
   return pos_scalar * pos_unitvec3;
 }
 
@@ -56,10 +58,33 @@ JoystickReport pollVirtualKeyboard(VirtualKeyboard& keyboard) {
   return keyboard.check_buttons();
 }
 
-void updateCameraYAngle(Camera& camera, double direction) {
+void updateCameraXZAngle(Camera& camera, const double& direction) {
+  if (direction != 0) {
+    camera.xz_angle += global_const::hop_angle * direction;
+  }
+
+  const double new_camera_xpos = camera.xz_circle_radius * sin(PI * camera.xz_angle/180.0);
+  const double new_camera_zpos = camera.xz_circle_radius * cos(PI * camera.xz_angle/180.0);
+
+  camera.location_vec3.x = new_camera_xpos;
+  camera.location_vec3.z = new_camera_zpos;
+
+  ezp::print_item("new camera position");
+  ezp::print_labeled_item("cam x: ", camera.location_vec3.x);
+  ezp::print_labeled_item("cam y: ", camera.location_vec3.y);
+  ezp::print_labeled_item("cam z: ", camera.location_vec3.x);
 }
-void updateCameraXZAngle(Camera& camera, double direction) {
+
+void updateCameraYAngle(Camera& camera, const double& direction) {
+  camera.y_angle += global_const::hop_angle * direction;
+  const double new_camera_ypos = camera.pov_scalar * sin(PI * camera.y_angle/180.0);
+  const double new_camera_xz_radius = camera.pov_scalar * cos(PI * camera.y_angle/180.0);
+
+  camera.location_vec3.y = new_camera_ypos;
+  camera.xz_circle_radius = new_camera_xz_radius;
+  updateCameraXZAngle(camera, 0.0);
 }
+
 void updateCameraPosition(Camera& camera, VirtualKeyboard& keyboard) {
   JoystickReport joystick_report = pollVirtualKeyboard(keyboard);
   if (joystick_report.R_pressed == true) { 
@@ -78,7 +103,6 @@ void updateCameraPosition(Camera& camera, VirtualKeyboard& keyboard) {
     ezp::print_item("JOYSTICK: DOWN");
     updateCameraYAngle(camera, -1.0);
   }
-
 }
 
 
