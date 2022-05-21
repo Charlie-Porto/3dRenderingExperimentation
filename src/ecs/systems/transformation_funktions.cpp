@@ -7,6 +7,7 @@
 #include <ezprint.cpp>
 #include <virtual_keyboard.cpp>
 #include <camera.cpp>
+#include <camera_functions.cpp>
 
 #include "../../constants/static_variables.cpp"
 #include "../../tools/math_objects/Plane.cpp"
@@ -54,6 +55,13 @@ bool checkIfObjectIsInFrontOfPOV(const glm::dvec3& obj_pos, const glm::dvec3& ca
 }
 
 
+void updateCameraReverseRotationVersor(Camera& camera) {
+  const glm::dquat vert_rot_versor = cam_func::getCameraVerticalRotationVersor(-camera.y_angle);
+  const glm::dquat horiz_rot_versor = cam_func::getCameraHorizontalRotationVersor(-camera.xz_angle);
+  camera.rotation_versor = horizontal_rotation_versor * vertical_rotation_versor;
+}
+
+
 JoystickReport pollVirtualKeyboard(VirtualKeyboard& keyboard) {
   return keyboard.check_buttons();
 }
@@ -69,10 +77,12 @@ void updateCameraXZAngle(Camera& camera, const double& direction) {
   camera.location_vec3.x = new_camera_xpos;
   camera.location_vec3.z = new_camera_zpos;
 
-  ezp::print_item("new camera position");
-  ezp::print_labeled_item("cam x: ", camera.location_vec3.x);
-  ezp::print_labeled_item("cam y: ", camera.location_vec3.y);
-  ezp::print_labeled_item("cam z: ", camera.location_vec3.x);
+  // ezp::print_item("new camera position");
+  // ezp::print_labeled_item("cam x: ", camera.location_vec3.x);
+  // ezp::print_labeled_item("cam y: ", camera.location_vec3.y);
+  // ezp::print_labeled_item("cam z: ", camera.location_vec3.x);
+
+  updateCameraReverseRotationVersor(camera);
 }
 
 void updateCameraYAngle(Camera& camera, const double& direction) {

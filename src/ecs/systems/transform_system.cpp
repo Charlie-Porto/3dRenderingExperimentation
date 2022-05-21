@@ -17,9 +17,11 @@
 
 
 extern ControlPanel control;
-const double FOCUS_DISTANCE = 30.0; // distance at which actual length = screen pixels
 
 namespace pce {
+
+const double FOCUS_DISTANCE = 30.0; // distance at which actual length = screen pixels
+const auto VIEW_PLANE = pce::math_objs::Plane{.x=0.0, .y=0.0, .z=0.0, .c=0.0};
 
 // starting camera info
 const double start_xz_angle = 0.0;
@@ -43,6 +45,7 @@ public:
     camera_.y_angle = start_y_angle;
     camera_.xz_angle = start_xz_angle;
     camera_.xz_circle_radius = start_pos_scalar;
+
   }
 
 
@@ -51,12 +54,16 @@ public:
 
     // this function below is working nicely
     pce::transform::updateCameraPosition(camera_, keyboard_);
+
+
+
   }
 
   void UpdateEntities() {
     // updates 2D coordinates and render radius for each object
     for (auto const& entity : entities) {
       auto& transform = control.GetComponent<Transform>(entity);
+      auto& rot_pos = control.GetComponent<RotatedLocation>(entity);
       auto const& rigid_body = control.GetComponent<RigidBody>(entity);
 
     }

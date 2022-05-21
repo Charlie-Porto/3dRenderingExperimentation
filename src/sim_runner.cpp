@@ -16,6 +16,7 @@
 /* components */
 #include "ecs/components/transform_component.cpp"
 #include "ecs/components/rigid_body_component.cpp"
+#include "ecs/components/rotated_location_component.cpp"
 
 /* systems */
 #include "ecs/systems/transform_system.cpp"
@@ -60,6 +61,7 @@ int main(int argc, const char * argv[]) {
     /* Register Components */
     control.RegisterComponent<RigidBody>();
     control.RegisterComponent<Transform>();
+    control.RegisterComponent<RotatedLocation>();
 
 
     // /* Register Systems */
@@ -67,6 +69,7 @@ int main(int argc, const char * argv[]) {
     Signature transform_sig;
     transform_sig.set(control.GetComponentType<RigidBody>());
     transform_sig.set(control.GetComponentType<Transform>());
+    transform_sig.set(control.GetComponentType<RotatedLocation>());
     control.SetSystemSignature<pce::TransformSystem>(transform_sig);
     transform_system->Init();
 
