@@ -16,9 +16,10 @@
 /* components */
 #include "ecs/components/transform_component.cpp"
 #include "ecs/components/rigid_body_component.cpp"
+#include "ecs/components/rotated_location_component.cpp"
 
 /* systems */
-#include "ecs/systems/transformation_system.cpp"
+#include "ecs/systems/transform_system.cpp"
 #include "ecs/systems/draw_system.cpp"
 #include "ecs/systems/ball_movement_system.cpp"
 
@@ -60,15 +61,17 @@ int main(int argc, const char * argv[]) {
     /* Register Components */
     control.RegisterComponent<RigidBody>();
     control.RegisterComponent<Transform>();
+    control.RegisterComponent<RotatedLocation>();
 
 
-    /* Register Systems */
-    auto transformation_system = control.RegisterSystem<TransformationSystem>();
-    Signature transformation_sig;
-    transformation_sig.set(control.GetComponentType<RigidBody>());
-    transformation_sig.set(control.GetComponentType<Transform>());
-    control.SetSystemSignature<TransformationSystem>(transformation_sig);
-    transformation_system->Init();
+    // /* Register Systems */
+    auto transform_system = control.RegisterSystem<pce::TransformSystem>();
+    Signature transform_sig;
+    transform_sig.set(control.GetComponentType<RigidBody>());
+    transform_sig.set(control.GetComponentType<Transform>());
+    transform_sig.set(control.GetComponentType<RotatedLocation>());
+    control.SetSystemSignature<pce::TransformSystem>(transform_sig);
+    transform_system->Init();
 
     auto draw_system = control.RegisterSystem<DrawSystem>();
     Signature draw_sig;
@@ -85,12 +88,11 @@ int main(int argc, const char * argv[]) {
     auto ball_manager = BallManager();
     auto line_manager = LineManager();
 
-    for (int i = 0; i < 300; ++i) {
+    for (int i = 0; i < 100; ++i) {
         ball_manager.MakeBall();
     }
 
     line_manager.Init();
-    
 
 
     /* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ End Setup */
@@ -117,7 +119,7 @@ int main(int argc, const char * argv[]) {
         // print_item("-------------------------------------------");
         /*~~~~~~~~~------------- Do Stuff and Update ----------------*/
         double ticks = (SDL_GetTicks()/1000.0);
-        transformation_system->UpdateEntities();
+        transform_system->UpdateEntities();
         ball_movement_system->UpdateEntities(ticks);
 
 

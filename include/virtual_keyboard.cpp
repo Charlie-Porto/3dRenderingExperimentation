@@ -10,7 +10,7 @@
 /* Other dependencies */
 #include "../src/sdl_core/sim_manager.cpp"      // for events 
 
-struct Joystick_ {
+struct JoystickReport{
   bool R_pressed;
   bool L_pressed;
   bool Down_pressed;
@@ -24,26 +24,24 @@ public:
     VirtualKeyboard();
     ~VirtualKeyboard(){};
 
-    Joystick_ check_buttons();
+    JoystickReport check_buttons();
 
     /* key movement */ 
 private:
-  Joystick_ joystick_; 
+
+  JoystickReport joystick_; 
 
 }; 
 
 
-VirtualKeyboard::VirtualKeyboard() 
-{
-  joystick_ = Joystick_{
-    .R_pressed = false,
-    .L_pressed = false,
-    .Down_pressed = false,
-    .Up_pressed = false
-  };
+VirtualKeyboard::VirtualKeyboard() {
+    joystick_.R_pressed = false;
+    joystick_.L_pressed = false;
+    joystick_.Down_pressed = false;
+    joystick_.Up_pressed = false;
 }
 
-Joystick_ VirtualKeyboard::check_buttons()
+JoystickReport VirtualKeyboard::check_buttons()
 {
     /* poll all events */
     for (int i = 0; i < Simulation::frame_events.size(); i++)

@@ -5,7 +5,7 @@
 struct Transform {
   double x;
   double y;
-  int render_radius;
+  double render_radius;
   bool if_on_screen;
 };
 
