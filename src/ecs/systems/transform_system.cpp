@@ -28,8 +28,7 @@ const double start_xz_angle = 0.0;
 const double start_y_angle = 0.0;
 const auto start_pov = glm::dvec3(0.0, 0.0, 1.0);
 // const auto start_dov = glm::dvec3(0.0, 0.0, -1.0);
-// const double start_pos_scalar = 300.0;
-const double start_pos_scalar = 300; // start at pluto: 3.7 billion miles
+const double start_pos_scalar = 3000000;
 
 
 class TransformSystem : public ISystem {
@@ -57,7 +56,7 @@ public:
   void UpdateEntities() {
     UpdateCamera();
     for (auto const& entity : entities) {
-      // ezp::print_labeled_item("updating entity: ", entity);
+      ezp::print_labeled_item("transforming entity: ", entity);
       auto& transform = control.GetComponent<Transform>(entity);
       auto& rotated_location = control.GetComponent<RotatedLocation>(entity);
       auto const& rigid_body = control.GetComponent<ScaledRigidBody>(entity);

@@ -10,7 +10,6 @@
 #include "constants/static_variables.cpp"
 #include "sdl_core/sim_manager.cpp"
 
-
 #include "ecs/ControlPanel.cpp"
 
 /* components */
@@ -27,6 +26,7 @@
 /* systems */
 #include "ecs/systems/transform_system.cpp"
 #include "ecs/systems/draw_system.cpp"
+#include "ecs/systems/scale_system.cpp"
 
 
 /* other */
@@ -90,14 +90,22 @@ int main(int argc, const char * argv[]) {
     draw_sig.set(control.GetComponentType<Sprite>());
     control.SetSystemSignature<DrawSystem>(draw_sig);
 
+    auto scale_system = control.RegisterSystem<pce::ScaleSystem>();
+    Signature scale_sig;
+    scale_sig.set(control.GetComponentType<RigidBody>());
+    scale_sig.set(control.GetComponentType<ScaledRigidBody>());
+    scale_sig.set(control.GetComponentType<Position>());
+    scale_sig.set(control.GetComponentType<ScaledPosition>());
+    control.SetSystemSignature<pce::ScaleSystem>(scale_sig);
+    
 
-    const double sun_scale_minimizer = 4326.9; // sun's radius = 50 pixels
-    const double object_size_booster = 50000000;
+    // const double sun_scale_minimizer = 4326.9; // sun's radius = 50 pixels
+    // const double object_size_booster = 50000000;
 
     /* Create Entities */
     Entity sun = control.CreateEntity();
     control.AddComponent(sun, RigidBody{
-        .mass_kg=1.989*(10^30),
+        // .mass_kg=1.989*(10^30),
         .radius_mi=432690.0
     });
     control.AddComponent(sun, ScaledRigidBody{
@@ -117,20 +125,20 @@ int main(int argc, const char * argv[]) {
 
     Entity mercury = control.CreateEntity();
     control.AddComponent(mercury, RigidBody{
-        .mass_kg=3.285*(10^23),
+        // .mass_kg=3.285*(10^23),
         .radius_mi=1516,
     });
     control.AddComponent(mercury, ScaledRigidBody{
         .radius=10
     });
-    control.AddComponent(mercury, Sprite{
-        .color={255, 160, 100, 255}
-    });
     control.AddComponent(mercury, Position{
-      .center_point=glm::dvec3{100000.0, 0.0, 0.0}
+      .center_point=glm::dvec3{43000000.0, 0.0, 0.0}
     });
     control.AddComponent(mercury, ScaledPosition{
       .center_point=glm::dvec3{150.0, 0.0, 0.0}
+    });
+    control.AddComponent(mercury, Sprite{
+        .color={255, 160, 100, 255}
     });
     control.AddComponent(mercury, RotatedLocation{});
     control.AddComponent(mercury, Transform{});
@@ -162,10 +170,11 @@ int main(int argc, const char * argv[]) {
         // print_item("-------------------------------------------");
         /*~~~~~~~~~------------- Do Stuff and Update ----------------*/
         double ticks = (SDL_GetTicks()/1000.0);
-        transform_system->UpdateEntities();
 
 
         /*~~~~~~~~~-------------- Draw and Render --------------------*/
+        scale_system->UpdateEntities();
+        transform_system->UpdateEntities();
         draw_system->UpdateEntities();
         simulation->render();
 
