@@ -16,17 +16,23 @@
 /* components */
 #include "ecs/components/transform_component.cpp"
 #include "ecs/components/rigid_body_component.cpp"
+#include "ecs/components/scaled_rigid_body_component.cpp"
+#include "ecs/components/position_component.cpp"
+#include "ecs/components/scaled_position_component.cpp"
 #include "ecs/components/rotated_location_component.cpp"
+#include "ecs/components/sprite_component.cpp"
+#include "ecs/components/motion_component.cpp"
+// #include "ecs/components/orbit_component.cpp"
 
 /* systems */
 #include "ecs/systems/transform_system.cpp"
 #include "ecs/systems/draw_system.cpp"
-#include "ecs/systems/ball_movement_system.cpp"
+
 
 /* other */
 #include <simple_framerate_timer.cpp>
-#include "ecs/BallManager.cpp"
-#include "ecs/LineManager.cpp"
+// #include "ecs/BallManager.cpp"
+// #include "ecs/LineManager.cpp"
 
 
 /*---------- screen dimensions ----------*/
@@ -60,14 +66,19 @@ int main(int argc, const char * argv[]) {
 
     /* Register Components */
     control.RegisterComponent<RigidBody>();
+    control.RegisterComponent<ScaledRigidBody>();
+    control.RegisterComponent<Position>();
+    control.RegisterComponent<ScaledPosition>();
     control.RegisterComponent<Transform>();
     control.RegisterComponent<RotatedLocation>();
-
+    control.RegisterComponent<Motion>();
+    control.RegisterComponent<Sprite>();
 
     // /* Register Systems */
     auto transform_system = control.RegisterSystem<pce::TransformSystem>();
     Signature transform_sig;
-    transform_sig.set(control.GetComponentType<RigidBody>());
+    transform_sig.set(control.GetComponentType<ScaledRigidBody>());
+    transform_sig.set(control.GetComponentType<ScaledPosition>());
     transform_sig.set(control.GetComponentType<Transform>());
     transform_sig.set(control.GetComponentType<RotatedLocation>());
     control.SetSystemSignature<pce::TransformSystem>(transform_sig);
@@ -76,23 +87,55 @@ int main(int argc, const char * argv[]) {
     auto draw_system = control.RegisterSystem<DrawSystem>();
     Signature draw_sig;
     draw_sig.set(control.GetComponentType<Transform>());
+    draw_sig.set(control.GetComponentType<Sprite>());
     control.SetSystemSignature<DrawSystem>(draw_sig);
 
-    auto ball_movement_system = control.RegisterSystem<BallMovementSystem>();
-    Signature move_sig;
-    move_sig.set(control.GetComponentType<RigidBody>());
-    control.SetSystemSignature<BallMovementSystem>(move_sig);
 
+    const double sun_scale_minimizer = 4326.9; // sun's radius = 50 pixels
+    const double object_size_booster = 50000000;
 
     /* Create Entities */
-    auto ball_manager = BallManager();
-    auto line_manager = LineManager();
+    Entity sun = control.CreateEntity();
+    control.AddComponent(sun, RigidBody{
+        .mass_kg=1.989*(10^30),
+        .radius_mi=432690.0
+    });
+    control.AddComponent(sun, ScaledRigidBody{
+        .radius=50
+    });
+    control.AddComponent(sun, Position{
+      .center_point=glm::dvec3{0, 0, 0},
+    });
+    control.AddComponent(sun, ScaledPosition{
+      .center_point=glm::dvec3{0, 0, 0},
+    });
+    control.AddComponent(sun, Sprite{
+        .color={255, 206, 0, 255}
+    });
+    control.AddComponent(sun, RotatedLocation{});
+    control.AddComponent(sun, Transform{});
 
-    for (int i = 0; i < 100; ++i) {
-        ball_manager.MakeBall();
-    }
+    Entity mercury = control.CreateEntity();
+    control.AddComponent(mercury, RigidBody{
+        .mass_kg=3.285*(10^23),
+        .radius_mi=1516,
+    });
+    control.AddComponent(mercury, ScaledRigidBody{
+        .radius=10
+    });
+    control.AddComponent(mercury, Sprite{
+        .color={255, 160, 100, 255}
+    });
+    control.AddComponent(mercury, Position{
+      .center_point=glm::dvec3{100000.0, 0.0, 0.0}
+    });
+    control.AddComponent(mercury, ScaledPosition{
+      .center_point=glm::dvec3{150.0, 0.0, 0.0}
+    });
+    control.AddComponent(mercury, RotatedLocation{});
+    control.AddComponent(mercury, Transform{});
 
-    line_manager.Init();
+
 
 
     /* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ End Setup */
@@ -120,11 +163,9 @@ int main(int argc, const char * argv[]) {
         /*~~~~~~~~~------------- Do Stuff and Update ----------------*/
         double ticks = (SDL_GetTicks()/1000.0);
         transform_system->UpdateEntities();
-        ball_movement_system->UpdateEntities(ticks);
 
 
         /*~~~~~~~~~-------------- Draw and Render --------------------*/
-        line_manager.DrawLines();
         draw_system->UpdateEntities();
         simulation->render();
 

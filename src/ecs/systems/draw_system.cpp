@@ -35,12 +35,13 @@ public:
   void UpdateEntities() {
     for (auto const& entity : entities) {
       auto const& transform = control.GetComponent<Transform>(entity);
+      auto const& sprite = control.GetComponent<Sprite>(entity);
 
       if (transform.if_on_screen == true) {
 
         const std::vector<int> sdl_transform = ConvertCartesianCoordinatesToSDL(transform);
        
-        DrawCircle(sdl_transform[0], sdl_transform[1], transform.render_radius, mcolor, Simulation::renderer);
+        DrawCircle(sdl_transform[0], sdl_transform[1], transform.render_radius, sprite.color, Simulation::renderer);
       }
     }
   }

@@ -17,7 +17,7 @@ namespace global_const {
 
   const double width_angle_of_view = 120; // degrees
   const double height_angle_of_view = 120; // degrees
-  const double zoom_scalar = 1;
+  const double zoom_scalar = 100000000; // zoomed out 1 billion to start
 
   const double movement_speed = .5; // feet crawled per btn press
   const double hop_angle = 1; // degrees crawled per btn press

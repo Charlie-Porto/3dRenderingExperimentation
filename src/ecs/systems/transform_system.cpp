@@ -21,14 +21,15 @@ extern ControlPanel control;
 namespace pce {
 
 const double FOCUS_DISTANCE = 30.0; // distance at which actual length = screen pixels
-const auto VIEW_PLANE = pce::math_objs::Plane{.x=0.0, .y=0.0, .z=0.0, .c=0.0};
+auto VIEW_PLANE = pce::math_objs::Plane{.x=0.0, .y=0.0, .z=1.0, .c=0.0};
 
 // starting camera info
 const double start_xz_angle = 0.0;
 const double start_y_angle = 0.0;
 const auto start_pov = glm::dvec3(0.0, 0.0, 1.0);
 // const auto start_dov = glm::dvec3(0.0, 0.0, -1.0);
-const double start_pos_scalar = 100.0;
+// const double start_pos_scalar = 300.0;
+const double start_pos_scalar = 300; // start at pluto: 3.7 billion miles
 
 
 class TransformSystem : public ISystem {
@@ -59,18 +60,19 @@ public:
       // ezp::print_labeled_item("updating entity: ", entity);
       auto& transform = control.GetComponent<Transform>(entity);
       auto& rotated_location = control.GetComponent<RotatedLocation>(entity);
-      auto const& rigid_body = control.GetComponent<RigidBody>(entity);
+      auto const& rigid_body = control.GetComponent<ScaledRigidBody>(entity);
+      auto const& position = control.GetComponent<ScaledPosition>(entity);
 
       rotated_location.rot_pos = pce::transform::performObjectReverseRotation(
                                                      camera_.rotation_versor,
-                                                     rigid_body.location);
+                                                     position.center_point);
 
       transform.if_on_screen = pce::transform::checkIfObjectIsInFrontOfPOV(
-                                                 rigid_body.location,
+                                                 position.center_point,
                                                  camera_.location_vec3);
       
       transform.render_radius = pce::transform::calculateObjectRenderRadius(
-                                                    rigid_body.location,
+                                                    position.center_point,
                                                     rigid_body.radius,
                                                     camera_);
 
@@ -78,19 +80,16 @@ public:
                                                    transform,
                                                    camera_.pov_scalar);
 
-
       // ezp::print_item("------------------");
       // ezp::print_labeled_item("if on screen: ", transform.if_on_screen);
       // ezp::print_item("location: ");
-      // ezp::print_dvec3(rigid_body.location);
+      // ezp::print_dvec3(position.center_point);
       // // ezp::print_item("updated rot_pos: ");
       // // ezp::print_dvec3(rotated_location.rot_pos);
 
       // ezp::print_labeled_item("2D x: ", transform.x);
       // ezp::print_labeled_item("2D y: ", transform.y);
       // ezp::print_labeled_item("render radius: ", transform.render_radius);
-
-
     }
     
   }
