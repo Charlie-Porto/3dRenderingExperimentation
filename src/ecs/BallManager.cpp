@@ -67,6 +67,7 @@ public:
         .direction=new_ball_direction
     });
     control.AddComponent(ball, Transform{});
+    control.AddComponent(ball, RotatedLocation{.rot_pos=new_ball_location});
     balls.push_back(ball);
   }
 

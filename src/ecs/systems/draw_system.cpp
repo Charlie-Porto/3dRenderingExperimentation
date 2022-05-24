@@ -39,13 +39,7 @@ public:
       if (transform.if_on_screen == true) {
 
         const std::vector<int> sdl_transform = ConvertCartesianCoordinatesToSDL(transform);
-        // std::cout<< "transform x: " << int(transform.x) <<'\n';
-        // std::cout<< "transform y: " << int(transform.y) <<'\n';
-
-        // std::cout<< "screen x: " << sdl_transform[0] <<'\n';
-        // std::cout<< "screen y: " << sdl_transform[1] <<'\n';
-        // std::cout<< "screen radius: " << transform.render_radius <<'\n';
-        
+       
         DrawCircle(sdl_transform[0], sdl_transform[1], transform.render_radius, mcolor, Simulation::renderer);
       }
     }

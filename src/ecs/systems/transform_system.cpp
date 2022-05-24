@@ -37,7 +37,6 @@ public:
     ezp::print_item("creating Transform system");
   }
 
-
   void Init() {
     ezp::print_item("initializing Transform system");
     camera_.pov_unitvec3 = start_pov;
@@ -45,26 +44,52 @@ public:
     camera_.y_angle = start_y_angle;
     camera_.xz_angle = start_xz_angle;
     camera_.xz_circle_radius = start_pos_scalar;
-
+    camera_.focus_distance = FOCUS_DISTANCE;
+    camera_.location_vec3 = start_pov * start_pos_scalar;
+    pce::transform::updateCameraReverseRotationVersor(camera_);
   }
 
-
   void UpdateCamera() {
-    // update the camera. to relocate this responsibility eventually; should not be in this class
-
-    // this function below is working nicely
     pce::transform::updateCameraPosition(camera_, keyboard_);
-
-
-
   }
 
   void UpdateEntities() {
-    // updates 2D coordinates and render radius for each object
+    UpdateCamera();
     for (auto const& entity : entities) {
+      // ezp::print_labeled_item("updating entity: ", entity);
       auto& transform = control.GetComponent<Transform>(entity);
-      auto& rot_pos = control.GetComponent<RotatedLocation>(entity);
+      auto& rotated_location = control.GetComponent<RotatedLocation>(entity);
       auto const& rigid_body = control.GetComponent<RigidBody>(entity);
+
+      rotated_location.rot_pos = pce::transform::performObjectReverseRotation(
+                                                     camera_.rotation_versor,
+                                                     rigid_body.location);
+
+      transform.if_on_screen = pce::transform::checkIfObjectIsInFrontOfPOV(
+                                                 rigid_body.location,
+                                                 camera_.location_vec3);
+      
+      transform.render_radius = pce::transform::calculateObjectRenderRadius(
+                                                    rigid_body.location,
+                                                    rigid_body.radius,
+                                                    camera_);
+
+      pce::transform::calculate2dObjectCoordinates(rotated_location.rot_pos,
+                                                   transform,
+                                                   camera_.pov_scalar);
+
+
+      // ezp::print_item("------------------");
+      // ezp::print_labeled_item("if on screen: ", transform.if_on_screen);
+      // ezp::print_item("location: ");
+      // ezp::print_dvec3(rigid_body.location);
+      // // ezp::print_item("updated rot_pos: ");
+      // // ezp::print_dvec3(rotated_location.rot_pos);
+
+      // ezp::print_labeled_item("2D x: ", transform.x);
+      // ezp::print_labeled_item("2D y: ", transform.y);
+      // ezp::print_labeled_item("render radius: ", transform.render_radius);
+
 
     }
     

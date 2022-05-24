@@ -86,14 +86,13 @@ int main(int argc, const char * argv[]) {
 
     /* Create Entities */
     auto ball_manager = BallManager();
-    // auto line_manager = LineManager();
+    auto line_manager = LineManager();
 
-    // for (int i = 0; i < 1; ++i) {
-        // ball_manager.MakeBall();
-    // }
+    for (int i = 0; i < 100; ++i) {
+        ball_manager.MakeBall();
+    }
 
-    // line_manager.Init();
-    
+    line_manager.Init();
 
 
     /* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ End Setup */
@@ -120,13 +119,13 @@ int main(int argc, const char * argv[]) {
         // print_item("-------------------------------------------");
         /*~~~~~~~~~------------- Do Stuff and Update ----------------*/
         double ticks = (SDL_GetTicks()/1000.0);
-        transform_system->UpdateCamera();
-        // ball_movement_system->UpdateEntities(ticks);
+        transform_system->UpdateEntities();
+        ball_movement_system->UpdateEntities(ticks);
 
 
         /*~~~~~~~~~-------------- Draw and Render --------------------*/
-        // line_manager.DrawLines();
-        // draw_system->UpdateEntities();
+        line_manager.DrawLines();
+        draw_system->UpdateEntities();
         simulation->render();
 
 
