@@ -7,8 +7,6 @@
 to store static consts used in the project
 -----------------------------------------------------------------*/
 
-#include <iostream>
-
 namespace global_const {
   const int screen_x = 1000;
   const int screen_y = 672;
@@ -21,21 +19,9 @@ namespace global_const {
   const double height_angle_of_view = 120; // degrees
   const double zoom_scalar = 1;
 
-  const double hop_angle = 1;
+  const double movement_speed = .5; // feet crawled per btn press
+  const double hop_angle = 1; // degrees crawled per btn press
 }
-
-
-template<typename T>
-void print_item(T item) {
-  std::cout<< item <<'\n';
-}
-
-template<typename T>
-void print_labeled_item(std::string label, T item) {
-  std::cout<< label << item <<'\n';
-}
-
-
 
 
 #endif /* static_variables_cpp */

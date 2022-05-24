@@ -136,13 +136,22 @@ void updateCameraXZAngle(Camera& camera, const double& direction) {
 }
 
 void updateCameraYAngle(Camera& camera, const double& direction) {
-  camera.y_angle += global_const::hop_angle * direction;
+  if (direction != 0.0) {
+    camera.y_angle += global_const::hop_angle * direction;
+  }
   const double new_camera_ypos = camera.pov_scalar * sin(PI * camera.y_angle/180.0);
   const double new_camera_xz_radius = camera.pov_scalar * cos(PI * camera.y_angle/180.0);
 
   camera.location_vec3.y = new_camera_ypos;
   camera.xz_circle_radius = new_camera_xz_radius;
   updateCameraXZAngle(camera, 0.0);
+}
+
+void updateCameraPositionScalar(Camera& camera, double direction) {
+  if (camera.pov_scalar >= global_const::movement_speed) {
+    camera.pov_scalar += direction * global_const::movement_speed;
+    updateCameraYAngle(camera, 0.0);
+  }
 }
 
 void updateCameraPosition(Camera& camera, VirtualKeyboard& keyboard) {
@@ -162,6 +171,14 @@ void updateCameraPosition(Camera& camera, VirtualKeyboard& keyboard) {
   if (joystick_report.Down_pressed == true) {
     ezp::print_item("JOYSTICK: DOWN");
     updateCameraYAngle(camera, -1.0);
+  }
+  if (joystick_report.W_pressed == true) {
+    ezp::print_item("JOYSTICK: W");
+    updateCameraPositionScalar(camera, -1.0);
+  }
+  if (joystick_report.S_pressed == true) {
+    ezp::print_item("JOYSTICK: S");
+    updateCameraPositionScalar(camera, 1.0);
   }
 }
 

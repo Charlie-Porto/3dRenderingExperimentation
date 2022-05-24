@@ -1,8 +1,6 @@
 #ifndef virtual_keyboard_cpp
 #define virtual_keyboard_cpp
 
-#include <vector>
-
 /* SDL Libraries */
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -15,20 +13,19 @@ struct JoystickReport{
   bool L_pressed;
   bool Down_pressed;
   bool Up_pressed;
+  bool W_pressed;
+  bool S_pressed;
+  bool A_pressed;
+  bool D_pressed;
 };
 
 class VirtualKeyboard 
 {
-/* virtual keyboard. 'nuff said. */
 public:
     VirtualKeyboard();
     ~VirtualKeyboard(){};
-
     JoystickReport check_buttons();
-
-    /* key movement */ 
 private:
-
   JoystickReport joystick_; 
 
 }; 
@@ -39,6 +36,10 @@ VirtualKeyboard::VirtualKeyboard() {
     joystick_.L_pressed = false;
     joystick_.Down_pressed = false;
     joystick_.Up_pressed = false;
+    joystick_.W_pressed = false;
+    joystick_.S_pressed = false;
+    joystick_.A_pressed = false;
+    joystick_.D_pressed = false;
 }
 
 JoystickReport VirtualKeyboard::check_buttons()
@@ -67,6 +68,14 @@ JoystickReport VirtualKeyboard::check_buttons()
                     std::cout<<"PRESS: DOWN" <<'\n';
                     joystick_.Down_pressed = true;
                     break;
+                case SDLK_w:
+                    std::cout<<"PRESS: W" <<'\n';
+                    joystick_.W_pressed = true;
+                    break;
+                case SDLK_s:
+                    std::cout<<"PRESS: S" <<'\n';
+                    joystick_.S_pressed = true;
+                    break;
                 default:
                     break;
             } 
@@ -91,6 +100,14 @@ JoystickReport VirtualKeyboard::check_buttons()
                 case SDLK_DOWN:
                     std::cout<<"LIFT: DOWN" <<'\n';
                     joystick_.Down_pressed = false;
+                    break;
+                case SDLK_w:
+                    std::cout<<"LIFT: W" <<'\n';
+                    joystick_.W_pressed = false;
+                    break;
+                case SDLK_s:
+                    std::cout<<"LIFT: S" <<'\n';
+                    joystick_.S_pressed = false;
                     break;
                 default:
                     break;

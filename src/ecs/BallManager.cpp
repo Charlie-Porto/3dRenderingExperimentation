@@ -26,7 +26,7 @@ const double max_r = 10.0;
 
 class BallManager {
 public:
-  BallManager() { print_item("creating Ball Manager"); }
+  BallManager() {}
 
 
   /* random parameters within ranges */

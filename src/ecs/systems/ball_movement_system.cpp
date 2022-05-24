@@ -15,7 +15,6 @@ extern ControlPanel Control;
 class BallMovementSystem : public ISystem {
 public:
   BallMovementSystem(){
-    print_item("creating Ball Movement System");
     previous_time = 0;
   }
 
