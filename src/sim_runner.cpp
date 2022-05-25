@@ -21,12 +21,14 @@
 #include "ecs/components/rotated_location_component.cpp"
 #include "ecs/components/sprite_component.cpp"
 #include "ecs/components/motion_component.cpp"
+#include "ecs/components/planet_component.cpp"
 // #include "ecs/components/orbit_component.cpp"
 
 /* systems */
 #include "ecs/systems/transform_system.cpp"
 #include "ecs/systems/draw_system.cpp"
 #include "ecs/systems/scale_system.cpp"
+#include "ecs/systems/orbit_system.cpp"
 
 
 /* other */
@@ -73,6 +75,7 @@ int main(int argc, const char * argv[]) {
     control.RegisterComponent<RotatedLocation>();
     control.RegisterComponent<Motion>();
     control.RegisterComponent<Sprite>();
+    control.RegisterComponent<Planet>();
 
     // /* Register Systems */
     auto transform_system = control.RegisterSystem<pce::TransformSystem>();
@@ -97,10 +100,21 @@ int main(int argc, const char * argv[]) {
     scale_sig.set(control.GetComponentType<Position>());
     scale_sig.set(control.GetComponentType<ScaledPosition>());
     control.SetSystemSignature<pce::ScaleSystem>(scale_sig);
-    
 
-    // const double sun_scale_minimizer = 4326.9; // sun's radius = 50 pixels
-    // const double object_size_booster = 50000000;
+    auto orbit_system = control.RegisterSystem<pce::OrbitSystem>();
+    Signature orbit_sig;
+    orbit_sig.set(control.GetComponentType<RigidBody>());
+    orbit_sig.set(control.GetComponentType<Position>());
+    orbit_sig.set(control.GetComponentType<Motion>());
+    orbit_sig.set(control.GetComponentType<Planet>());
+    control.SetSystemSignature<pce::OrbitSystem>(orbit_sig);
+
+    // make system
+    // auto _system = control.RegisterSystem<>();
+    // Signature _sig;
+    // _sig.set(control.GetComponentType<>());
+    // control.SetSystemSignature<>(_sig);
+    
 
     /* Create Entities */
     Entity sun = control.CreateEntity();
@@ -123,16 +137,17 @@ int main(int argc, const char * argv[]) {
     control.AddComponent(sun, RotatedLocation{});
     control.AddComponent(sun, Transform{});
 
+
     Entity mercury = control.CreateEntity();
     control.AddComponent(mercury, RigidBody{
-        // .mass_kg=3.285*(10^23),
+        .mass_kg=3.285*(10^23),
         .radius_mi=1516,
     });
     control.AddComponent(mercury, ScaledRigidBody{
         .radius=10
     });
     control.AddComponent(mercury, Position{
-      .center_point=glm::dvec3{43000000.0, 0.0, 0.0}
+      .center_point=glm::dvec3{70006464000.0, 0.0, 0.0}
     });
     control.AddComponent(mercury, ScaledPosition{
       .center_point=glm::dvec3{150.0, 0.0, 0.0}
@@ -142,6 +157,8 @@ int main(int argc, const char * argv[]) {
     });
     control.AddComponent(mercury, RotatedLocation{});
     control.AddComponent(mercury, Transform{});
+    control.AddComponent(mercury, Planet{.if_planet=true});
+    control.AddComponent(mercury, Motion{});
 
 
 
@@ -170,6 +187,7 @@ int main(int argc, const char * argv[]) {
         // print_item("-------------------------------------------");
         /*~~~~~~~~~------------- Do Stuff and Update ----------------*/
         double ticks = (SDL_GetTicks()/1000.0);
+        orbit_system->UpdateEntities(ticks);
 
 
         /*~~~~~~~~~-------------- Draw and Render --------------------*/

@@ -56,7 +56,7 @@ public:
   void UpdateEntities() {
     UpdateCamera();
     for (auto const& entity : entities) {
-      ezp::print_labeled_item("transforming entity: ", entity);
+      // ezp::print_labeled_item("transforming entity: ", entity);
       auto& transform = control.GetComponent<Transform>(entity);
       auto& rotated_location = control.GetComponent<RotatedLocation>(entity);
       auto const& rigid_body = control.GetComponent<ScaledRigidBody>(entity);

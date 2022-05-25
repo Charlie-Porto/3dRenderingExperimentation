@@ -4,7 +4,8 @@
 #include <glm/vec3.hpp>
 
 struct Motion{
-  double speed;
+  double initial_velocity;
+  double current_velocity;
   glm::dvec3 direction;
 };
 

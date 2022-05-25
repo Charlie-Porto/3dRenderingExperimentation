@@ -14,12 +14,8 @@ system that alters the scale of objects based on configured constants
 
 #include "../System.cpp"
 #include "../../constants/space_variables.cpp"
-
 extern ControlPanel control;
-
 namespace pce {
-
-
 class ScaleSystem : public ISystem {
 public:
   ScaleSystem() { ezp::print_item("creating Scale System"); }
@@ -35,10 +31,10 @@ public:
   }
    
   void UpdateEntities() {
-    ezp::print_item("updating scale system");
+    // ezp::print_item("updating scale system");
 
     for (auto const& entity : entities) {
-      ezp::print_labeled_item("entity: ", entity);
+      // ezp::print_labeled_item("entity: ", entity);
       auto const& position = control.GetComponent<Position>(entity);
       auto& scaled_position = control.GetComponent<ScaledPosition>(entity);
       auto const& rigid_body = control.GetComponent<RigidBody>(entity);
@@ -46,9 +42,9 @@ public:
 
       scaled_position.center_point = ScaleObjectPosition(position.center_point);
       scaled_rigid_body.radius = ScaleObjectRadius(rigid_body.radius_mi);
-      ezp::print_item("scaled center point: ");
-      ezp::print_dvec3(scaled_position.center_point);
-      ezp::print_labeled_item("scaled radius: ", scaled_rigid_body.radius);
+      // ezp::print_item("scaled center point: ");
+      // ezp::print_dvec3(scaled_position.center_point);
+      // ezp::print_labeled_item("scaled radius: ", scaled_rigid_body.radius);
     }
   }
 
