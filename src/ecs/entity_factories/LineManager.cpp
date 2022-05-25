@@ -8,9 +8,9 @@ class to manage fuckin' lines. shit.
 -----------------------------------------------------------------*/
 
 #include <vector>
-#include "../constants/static_variables.cpp"
-#include "../tools/other/randomness_functions.cpp"
-#include "../sdl_core/sim_manager.cpp"
+#include "../../constants/static_variables.cpp"
+#include "../../tools/other/randomness_functions.cpp"
+#include "../../sdl_core/sim_manager.cpp"
 
 extern ControlPanel control; 
 
@@ -81,18 +81,14 @@ public:
                                                      point_a_transform);
       const std::vector<int> b_sdl_coordinates = ConvertCartesianCoordinatesToSDL(
                                                      point_b_transform);
-
-
       SDL_RenderDrawLine(
         Simulation::renderer,
         a_sdl_coordinates[0], a_sdl_coordinates[1],
         b_sdl_coordinates[0], b_sdl_coordinates[1]
       );                                           
     }
-    
     SDL_SetRenderDrawColor(Simulation::renderer, 0, 0, 0, 255);
   }
-
 
 
 private:

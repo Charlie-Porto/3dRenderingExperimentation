@@ -8,8 +8,8 @@ class to manage ballz
 -> creation with random characteristics
 -----------------------------------------------------------------*/
 #include <vector>
-#include "../constants/static_variables.cpp"
-#include "../tools/other/randomness_functions.cpp"
+#include "../../constants/static_variables.cpp"
+#include "../../tools/other/randomness_functions.cpp"
 
 
 extern ControlPanel control; 

@@ -25,8 +25,9 @@
 
 /* other */
 #include <simple_framerate_timer.cpp>
-#include "ecs/BallManager.cpp"
-#include "ecs/LineManager.cpp"
+#include "ecs/entity_factories/BallManager.cpp"
+#include "ecs/entity_factories/LineManager.cpp"
+#include "ecs/entity_factories/GridManager.cpp"
 
 
 /*---------- screen dimensions ----------*/
@@ -86,13 +87,16 @@ int main(int argc, const char * argv[]) {
 
     /* Create Entities */
     auto ball_manager = BallManager();
-    auto line_manager = LineManager();
+    // auto line_manager = LineManager();
+    auto grid_manager = pce::GridManager();
 
     for (int i = 0; i < 100; ++i) {
         ball_manager.MakeBall();
     }
 
-    line_manager.Init();
+    // line_manager.Init();
+    grid_manager.Init();
+    grid_manager.CreateGrid(200.0, 10.0);
 
 
     /* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ End Setup */
@@ -124,7 +128,8 @@ int main(int argc, const char * argv[]) {
 
 
         /*~~~~~~~~~-------------- Draw and Render --------------------*/
-        line_manager.DrawLines();
+        // line_manager.DrawLines();
+        grid_manager.DrawGrid();
         draw_system->UpdateEntities();
         simulation->render();
 
