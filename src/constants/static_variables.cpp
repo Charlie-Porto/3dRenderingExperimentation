@@ -19,22 +19,11 @@ namespace global_const {
 
   const double width_angle_of_view = 120; // degrees
   const double height_angle_of_view = 120; // degrees
-  const double zoom_scalar = 1;
+  const double zoom_scalar = 1.0;
 
-  const double hop_angle = 1;
+  const double hop_angle = 1.0;
+  const double movement_speed = 1.0; 
 }
-
-
-template<typename T>
-void print_item(T item) {
-  std::cout<< item <<'\n';
-}
-
-template<typename T>
-void print_labeled_item(std::string label, T item) {
-  std::cout<< label << item <<'\n';
-}
-
 
 
 

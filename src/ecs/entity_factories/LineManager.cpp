@@ -54,12 +54,12 @@ public:
     Entity entity_point_b = control.CreateEntity();
 
     control.AddComponent(entity_point_a, RigidBody{
-        .radius=1.0,
+        .radius=20.0,
         .location=a,
         .direction=0.0 // stationary
     });
     control.AddComponent(entity_point_b, RigidBody{
-        .radius=1.0,
+        .radius=20.0,
         .location=b,
         .direction=0.0 // stationary
     });
@@ -76,16 +76,19 @@ public:
     for (const auto& line : lines) {
       const auto& point_a_transform = control.GetComponent<Transform>(line[0]);
       const auto& point_b_transform = control.GetComponent<Transform>(line[1]);
+      // if (point_a_transform.if_on_screen == true &&
+          // point_b_transform.if_on_screen == true){
+        const std::vector<int> a_sdl_coordinates = ConvertCartesianCoordinatesToSDL(
+                                                      point_a_transform);
+        const std::vector<int> b_sdl_coordinates = ConvertCartesianCoordinatesToSDL(
+                                                      point_b_transform);
 
-      const std::vector<int> a_sdl_coordinates = ConvertCartesianCoordinatesToSDL(
-                                                     point_a_transform);
-      const std::vector<int> b_sdl_coordinates = ConvertCartesianCoordinatesToSDL(
-                                                     point_b_transform);
-      SDL_RenderDrawLine(
-        Simulation::renderer,
-        a_sdl_coordinates[0], a_sdl_coordinates[1],
-        b_sdl_coordinates[0], b_sdl_coordinates[1]
-      );                                           
+        SDL_RenderDrawLine(
+          Simulation::renderer,
+          a_sdl_coordinates[0], a_sdl_coordinates[1],
+          b_sdl_coordinates[0], b_sdl_coordinates[1]
+        );                                           
+      // } 
     }
     SDL_SetRenderDrawColor(Simulation::renderer, 0, 0, 0, 255);
   }

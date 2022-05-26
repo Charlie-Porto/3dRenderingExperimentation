@@ -6,6 +6,7 @@
 --------------------- Module Description -------------------------|
 class to move ball around in 3D space
 -----------------------------------------------------------------*/
+#include <ezprint.cpp>
 #include "./../../constants/static_variables.cpp"
 #include "../System.cpp"
 #include "../../tools/math_functions/vector_functions.cpp"
@@ -15,7 +16,7 @@ extern ControlPanel Control;
 class BallMovementSystem : public ISystem {
 public:
   BallMovementSystem(){
-    print_item("creating Ball Movement System");
+    ezp::print_item("creating Ball Movement System");
     previous_time = 0;
   }
 

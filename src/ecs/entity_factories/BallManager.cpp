@@ -8,6 +8,7 @@ class to manage ballz
 -> creation with random characteristics
 -----------------------------------------------------------------*/
 #include <vector>
+#include <ezprint.cpp>
 #include "../../constants/static_variables.cpp"
 #include "../../tools/other/randomness_functions.cpp"
 
@@ -26,7 +27,7 @@ const double max_r = 10.0;
 
 class BallManager {
 public:
-  BallManager() { print_item("creating Ball Manager"); }
+  BallManager() { ezp::print_item("creating Ball Manager"); }
 
 
   /* random parameters within ranges */

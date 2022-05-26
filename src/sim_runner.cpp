@@ -90,13 +90,13 @@ int main(int argc, const char * argv[]) {
     // auto line_manager = LineManager();
     auto grid_manager = pce::GridManager();
 
-    for (int i = 0; i < 100; ++i) {
-        ball_manager.MakeBall();
-    }
+    // for (int i = 0; i < 100; ++i) {
+        // ball_manager.MakeBall();
+    // }
 
     // line_manager.Init();
     grid_manager.Init();
-    grid_manager.CreateGrid(200.0, 10.0);
+    grid_manager.CreateGrid(100.0, 20.0);
 
 
     /* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ End Setup */
