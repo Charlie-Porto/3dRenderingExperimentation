@@ -76,8 +76,8 @@ public:
     for (const auto& line : lines) {
       const auto& point_a_transform = control.GetComponent<Transform>(line[0]);
       const auto& point_b_transform = control.GetComponent<Transform>(line[1]);
-      // if (point_a_transform.if_on_screen == true &&
-          // point_b_transform.if_on_screen == true){
+      if (point_a_transform.if_on_screen == true ||
+          point_b_transform.if_on_screen == true){
         const std::vector<int> a_sdl_coordinates = ConvertCartesianCoordinatesToSDL(
                                                       point_a_transform);
         const std::vector<int> b_sdl_coordinates = ConvertCartesianCoordinatesToSDL(
@@ -88,7 +88,7 @@ public:
           a_sdl_coordinates[0], a_sdl_coordinates[1],
           b_sdl_coordinates[0], b_sdl_coordinates[1]
         );                                           
-      // } 
+      } 
     }
     SDL_SetRenderDrawColor(Simulation::renderer, 0, 0, 0, 255);
   }

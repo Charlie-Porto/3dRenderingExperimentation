@@ -11,20 +11,13 @@ to test transformation funktions
 
 #include <ezprint.cpp>
 
+#include "test_funks.cpp"
 #include "../src/ecs/components/transform_component.cpp"
 #include "../src/ecs/systems/transformation_funktions.cpp"
 
 
 namespace pce{
 namespace test{
-
-template <typename T> void report_result(T result, T correct_result, std::string case_num) {
-  if (result == correct_result) {
-    ezp::print_labeled_item(case_num, ": pass");
-  } else {
-    ezp::print_labeled_item(case_num, ": FAIL");
-  }
-}
 
 void test_checkIfObjectIsInFrontOfPOV(const glm::dvec3& obj_pos, 
                                       const glm::dvec3& camera_pos,
@@ -36,7 +29,7 @@ void test_checkIfObjectIsInFrontOfPOV(const glm::dvec3& obj_pos,
                                                                   camera_pos,
                                                                   camera_pov_scalar);
 
-  report_result<bool>(result, correct_result, case_num);
+  pce::test::report_result<bool>(result, correct_result, case_num);
 }
 
 

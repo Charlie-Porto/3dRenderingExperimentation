@@ -79,6 +79,7 @@ double calculateObjectRenderRadius(const glm::dvec3& location, const double& rad
   return render_radius;
 }
 
+
 void calculate2dCoordinatesOfObjectBehindCam(const glm::dvec3& rotated_pos, 
                                              Transform& transform) {
   const double tx = rotated_pos.x; 
@@ -91,11 +92,12 @@ void calculate2dCoordinatesOfObjectBehindCam(const glm::dvec3& rotated_pos,
   const auto point_xy_distance_from_cam = vfunc::calculateMagnitude(point_in_xy_plane);
 
   const double angle_of_point = acos(tx/point_xy_distance_from_cam);
-  // const double angle_of_point = atan(ty/tx);
-  const double screen_view_radius = 500.0;
+  const double screen_view_radius = 1000.0;
 
-  transform.x = screen_view_radius * cos(angle_of_point) * sign_x;
-  transform.y = screen_view_radius * sin(angle_of_point) * sign_y;
+  double new_x = screen_view_radius * cos(angle_of_point);
+  double new_y = screen_view_radius * sin(angle_of_point) * sign_y;
+  transform.x = new_x;
+  transform.y = new_y;
 }
 
 
@@ -111,14 +113,14 @@ void calculate2dObjectCoordinates(const glm::dvec3& rotated_pos,
                                                         object_wire, VIEW_PLANE);
     
 
-  // if (transform.if_on_screen == true) {
-    transform.x = point_wire_intersects_viewplane.x;
-    transform.y = point_wire_intersects_viewplane.y;
-  // } else {
-    // calculate2dCoordinatesOfObjectBehindCam(rotated_pos, transform);
+  if (transform.if_on_screen == true) {
+    transform.x = point_wire_intersects_viewplane.x * 2.0;
+    transform.y = point_wire_intersects_viewplane.y * 2.0;
+  } else {
+    calculate2dCoordinatesOfObjectBehindCam(rotated_pos, transform);
     // transform.x = -point_wire_intersects_viewplane.x;
     // transform.y = -point_wire_intersects_viewplane.y;
-  // }
+  }
 }
 
 
@@ -138,11 +140,6 @@ void updateCameraXZAngle(Camera& camera, const double& direction) {
   camera.location_vec3.x = new_camera_xpos;
   camera.location_vec3.z = new_camera_zpos;
 
-  // ezp::print_item("new camera position");
-  // ezp::print_labeled_item("cam x: ", camera.location_vec3.x);
-  // ezp::print_labeled_item("cam y: ", camera.location_vec3.y);
-  // ezp::print_labeled_item("cam z: ", camera.location_vec3.x);
-
   ezp::print_dvec3(camera.location_vec3);
   updateCameraReverseRotationVersor(camera);
 }
@@ -158,10 +155,8 @@ void updateCameraYAngle(Camera& camera, const double& direction) {
 }
 
 void updateCameraPositionScalar(Camera& camera, double direction) {
-  if (camera.pov_scalar >= 10.0) {
-    camera.pov_scalar += direction * global_const::movement_speed;
-    updateCameraYAngle(camera, 0.0);
-  }
+  camera.pov_scalar += direction * global_const::movement_speed;
+  updateCameraYAngle(camera, 0.0);
 }
 
 void updateCameraPosition(Camera& camera, VirtualKeyboard& keyboard) {

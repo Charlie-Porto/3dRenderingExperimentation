@@ -22,7 +22,7 @@ namespace global_const {
   const double zoom_scalar = 1.0;
 
   const double hop_angle = 1.0;
-  const double movement_speed = 1.0; 
+  const double movement_speed = 5.0; 
 }
 
 

@@ -96,7 +96,9 @@ int main(int argc, const char * argv[]) {
 
     // line_manager.Init();
     grid_manager.Init();
-    grid_manager.CreateGrid(100.0, 20.0);
+    std::vector<int> slots{0, 2};
+    // grid_manager.CreateTheGrid(50.0, 20.0, slots);
+    grid_manager.CreateGrid(300.0, 10.0);
 
 
     /* ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ End Setup */
