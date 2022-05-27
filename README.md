@@ -10,3 +10,4 @@
   `$ g++ src/sim_runner.cpp -std=c++17 -o main.o -L lib -l SDL2-2.0.0 -l SDL2_image-2.0.0`
   3. then, while in the directory containing the main.o output file, run this command:  
   `$ ./main.0`
+

@@ -1,7 +1,10 @@
 #ifndef transformation_funktions_cpp
 #define transformation_funktions_cpp
 
+#include <cmath>
+
 #include <glm/vec3.hpp>
+#include <glm/vec2.hpp>
 #include <glm/geometric.hpp>
 
 #include <ezprint.cpp>
@@ -21,7 +24,7 @@ free functions to assist the TransformSystem class
 
 namespace pce {
 namespace transform {
-const auto VIEW_PLANE = pce::math_objs::Plane{.x=0.0, .y=0.0, .z=1.0, .c=0.0};
+auto VIEW_PLANE = pce::math_objs::Plane{.x=0.0, .y=0.0, .z=1.0, .c=0.0};
 
 const double PI = 3.14159265;
 
@@ -40,15 +43,15 @@ glm::dvec3 calculatePointWireIntersectsViewplane(pce::math_objs::LineParametricE
 
 }
 
-bool checkIfObjectIsInFrontOfPOV(const glm::dvec3& obj_pos, const glm::dvec3& camera_pos) {
+bool checkIfObjectIsInFrontOfPOV(const glm::dvec3& obj_pos, const glm::dvec3& camera_pos,
+                                                            const double camera_pov_scalar) {
   const double distance_obj_to_POV = vfunc::calculateDistanceBetweenPosition3Vectors(camera_pos, obj_pos);
   const double distance_obj_to_origin = vfunc::calculateMagnitude(obj_pos);
 
   if (distance_obj_to_origin < distance_obj_to_POV) {
     return true;
   } else {
-    const double distance_POV_to_origin = vfunc::calculateMagnitude(camera_pos);
-    if (distance_obj_to_origin < distance_POV_to_origin) {
+    if (distance_obj_to_origin < camera_pov_scalar) {
       return true;
     }
   }
@@ -57,14 +60,14 @@ bool checkIfObjectIsInFrontOfPOV(const glm::dvec3& obj_pos, const glm::dvec3& ca
 
 // NOTE: SIGNS (+-) ARE VERY IMPORTANT IN THIS FUNCTION
 void updateCameraReverseRotationVersor(Camera& camera) {
-  const glm::dquat vert_rot_versor = cam_func::getCameraVerticalRotationVersor(camera.y_angle);
-  const glm::dquat horiz_rot_versor = cam_func::getCameraHorizontalRotationVersor(-camera.xz_angle);
+  const glm::dquat vert_rot_versor = cam_func::getCameraVerticalRotationVersor(-camera.y_angle);
+  const glm::dquat horiz_rot_versor = cam_func::getCameraHorizontalRotationVersor(camera.xz_angle);
   camera.rotation_versor = horiz_rot_versor * vert_rot_versor;
 }
 
 
 glm::dvec3 performObjectReverseRotation(const glm::dquat& rotation_versor,
-                                  const glm::dvec3& location) {
+                                        const glm::dvec3& location) {
   return qfunc::rotateVector3byQuaternion(location, rotation_versor);
 }
 
@@ -77,38 +80,48 @@ double calculateObjectRenderRadius(const glm::dvec3& location, const double& rad
 }
 
 
-void calculate2dObjectCoordinates(const glm::dvec3& rotated_pos, Transform& transform, double pov_scalar) {
-  const auto camera_pos = glm::dvec3(0.0, 0.0, 1.0) * pov_scalar;
-  pce::math_objs::LineParametricEquation object_wire = vfunc::getLineThrough3dVectors(
-                                                           camera_pos, rotated_pos);
+void calculate2dCoordinatesOfObjectBehindCam(const glm::dvec3& rotated_pos, 
+                                             Transform& transform) {
+  const double tx = rotated_pos.x; 
+  const double ty = rotated_pos.y; 
 
-  // ezp::print_item("***");
-  // ezp::print_item(object_wire.x_coefficient);
-  // ezp::print_item(object_wire.y_coefficient);
-  // ezp::print_item(object_wire.z_coefficient);
-  // ezp::print_item(object_wire.x_constant);
-  // ezp::print_item(object_wire.y_constant);
-  // ezp::print_item(object_wire.z_constant);
-  // ezp::print_item("***");
+  const double sign_x = double(abs(tx))/tx;
+  const double sign_y = double(abs(ty))/ty;
 
-  // ezp::print_item(VIEW_PLANE.x);
-  // ezp::print_item(VIEW_PLANE.y);
-  // ezp::print_item(VIEW_PLANE.z);
-  // ezp::print_item(VIEW_PLANE.c);
-  // ezp::print_item("***");
+  const auto point_in_xy_plane = glm::dvec2(tx, ty);
+  const auto point_xy_distance_from_cam = vfunc::calculateMagnitude(point_in_xy_plane);
 
-  
-  glm::dvec3 point_wire_intersects_viewplane = vfunc::getPointAtWhichLineIntersectsPlane(
-                                                         object_wire, VIEW_PLANE);
-  
-  // ezp::print_item("point wire intersects viewplane: ");
-  // ezp::print_dvec3(point_wire_intersects_viewplane);
+  const double angle_of_point = acos(tx/point_xy_distance_from_cam);
+  const double screen_view_radius = 1000.0;
 
-
-  transform.x = point_wire_intersects_viewplane.x;
-  transform.y = point_wire_intersects_viewplane.y;
+  double new_x = screen_view_radius * cos(angle_of_point);
+  double new_y = screen_view_radius * sin(angle_of_point) * sign_y;
+  transform.x = new_x;
+  transform.y = new_y;
 }
 
+
+void calculate2dObjectCoordinates(const glm::dvec3& rotated_pos, 
+                                  Transform& transform, 
+                                  double pov_scalar) {
+  const auto camera_pos = glm::dvec3(0.0, 0.0, 1.0) * pov_scalar;
+
+    pce::math_objs::LineParametricEquation object_wire = vfunc::getLineThrough3dVectors(
+                                                            camera_pos, rotated_pos);
+    VIEW_PLANE.z = pov_scalar-1.0;
+    glm::dvec3 point_wire_intersects_viewplane = vfunc::getPointAtWhichLineIntersectsPlane(
+                                                        object_wire, VIEW_PLANE);
+    
+
+  if (transform.if_on_screen == true) {
+    transform.x = point_wire_intersects_viewplane.x * 2.0;
+    transform.y = point_wire_intersects_viewplane.y * 2.0;
+  } else {
+    calculate2dCoordinatesOfObjectBehindCam(rotated_pos, transform);
+    // transform.x = -point_wire_intersects_viewplane.x;
+    // transform.y = -point_wire_intersects_viewplane.y;
+  }
+}
 
 
 JoystickReport pollVirtualKeyboard(VirtualKeyboard& keyboard) {
@@ -127,11 +140,7 @@ void updateCameraXZAngle(Camera& camera, const double& direction) {
   camera.location_vec3.x = new_camera_xpos;
   camera.location_vec3.z = new_camera_zpos;
 
-  // ezp::print_item("new camera position");
-  // ezp::print_labeled_item("cam x: ", camera.location_vec3.x);
-  // ezp::print_labeled_item("cam y: ", camera.location_vec3.y);
-  // ezp::print_labeled_item("cam z: ", camera.location_vec3.x);
-
+  ezp::print_dvec3(camera.location_vec3);
   updateCameraReverseRotationVersor(camera);
 }
 
@@ -145,23 +154,36 @@ void updateCameraYAngle(Camera& camera, const double& direction) {
   updateCameraXZAngle(camera, 0.0);
 }
 
+void updateCameraPositionScalar(Camera& camera, double direction) {
+  camera.pov_scalar += direction * global_const::movement_speed;
+  updateCameraYAngle(camera, 0.0);
+}
+
 void updateCameraPosition(Camera& camera, VirtualKeyboard& keyboard) {
   JoystickReport joystick_report = pollVirtualKeyboard(keyboard);
   if (joystick_report.R_pressed == true) { 
-    ezp::print_item("JOYSTICK: RIGHT");
+    // ezp::print_item("JOYSTICK: RIGHT");
     updateCameraXZAngle(camera, 1.0);
   }
   if (joystick_report.L_pressed == true) {
-    ezp::print_item("JOYSTICK: LEFT");
+    // ezp::print_item("JOYSTICK: LEFT");
     updateCameraXZAngle(camera, -1.0);
   }
   if (joystick_report.Up_pressed == true) {
-    ezp::print_item("JOYSTICK: UP");
+    // ezp::print_item("JOYSTICK: UP");
     updateCameraYAngle(camera, 1.0);
   }
   if (joystick_report.Down_pressed == true) {
-    ezp::print_item("JOYSTICK: DOWN");
+    // ezp::print_item("JOYSTICK: DOWN");
     updateCameraYAngle(camera, -1.0);
+  }
+  if (joystick_report.W_pressed == true) {
+    // ezp::print_item("JOYSTICK: W");
+    updateCameraPositionScalar(camera, -1.0);
+  }
+  if (joystick_report.S_pressed == true) {
+    // ezp::print_item("JOYSTICK: S");
+    updateCameraPositionScalar(camera, 1.0);
   }
 }
 

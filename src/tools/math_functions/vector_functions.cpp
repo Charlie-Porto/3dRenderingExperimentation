@@ -8,6 +8,7 @@ some functions for vectors, straight out the math book
 -----------------------------------------------------------------*/
 
 #include <glm/vec3.hpp>
+#include <glm/vec2.hpp>
 #include <cmath>
 #include <iostream>
 
@@ -24,6 +25,17 @@ double calculateMagnitude(glm::dvec3 v) {
   const double sq_magnitude = sq_x + sq_y + sq_z;
   const double magnitude = sqrt(sq_magnitude);
   return magnitude;
+}
+
+double calculateMagnitude(glm::dvec2 v) {
+  const double distance = sqrt(pow(v.x, 2.0) + pow(v.y, 2.0));
+  return distance;
+}
+
+double calculateDistanceBetweenPosition2Vectors(glm::dvec2 A, glm::dvec2 B) {
+  const glm::dvec2 D = A - B;
+  const double distance = sqrt(pow(D.x, 2.0) + pow(D.y, 2.0));
+  return distance;
 }
 
 double calculateDistanceBetweenPosition3Vectors(glm::dvec3 A, glm::dvec3 B) {
