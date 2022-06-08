@@ -1,1 +1,0 @@
-This pair of folders are needed to write and compile programs using the SDL2 dynamic libraries. simply paste these within the primary folder for them to (hopefully) be found by the linker and compiler when needed. 
